@@ -56,7 +56,7 @@ const run = async () => {
     const cartCollection = db.collection("allCartOrders");
 
     // auth apis
-    app.post("api/v1/jwt", async (req, res) => {
+    app.post("/api/v1/jwt", async (req, res) => {
       const user = req.body;
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
         expiresIn: "1h",
@@ -68,6 +68,10 @@ const run = async () => {
           // sameSite have to apply
         })
         .send({ success: true });
+    });
+
+    app.post("/api/v1/logout", async (req, res) => {
+      res.clearCookie("token", { maxAge: 0 }).send({ success: true });
     });
 
     // get data
