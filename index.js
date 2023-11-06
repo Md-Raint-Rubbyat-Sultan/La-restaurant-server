@@ -78,7 +78,8 @@ const run = async () => {
     app.get("/api/v1/all-foods", async (req, res) => {
       const query = {};
       const allFoods = await foodCollection.find(query).toArray();
-      res.send(allFoods);
+      const foodsCount = await foodCollection.estimatedDocumentCount();
+      res.send({ allFoods, count: foodsCount });
     });
 
     app.get("/api/v1/popular-foods", async (req, res) => {
