@@ -76,8 +76,15 @@ const run = async () => {
 
     // get data
     app.get("/api/v1/all-foods", async (req, res) => {
+      const page = parseInt(req.query?.page) || 0;
+      const size = parseInt(req.query?.size) || 9;
       const query = {};
-      const allFoods = await foodCollection.find(query).toArray();
+      const cursor = foodCollection.find(query);
+
+      const allFoods = await cursor
+        .skip(page * size)
+        .limit(size)
+        .toArray();
       const foodsCount = await foodCollection.estimatedDocumentCount();
       res.send({ allFoods, count: foodsCount });
     });
@@ -101,10 +108,17 @@ const run = async () => {
 
     app.get("/api/v1/user/added-foods", async (req, res) => {
       // verify token apply
+      const page = parseInt(req.query?.page) || 0;
+      const size = parseInt(req.query?.size) || 9;
       const Email = req.query.email;
       const query = { userEmail: Email };
-      const foodUserAdd = await foodCollection.find(query).toArray();
-      res.send(foodUserAdd);
+      const foodUserAdd = await foodCollection
+        .find(query)
+        .skip(page * size)
+        .limit(size)
+        .toArray();
+      const addedFoodsCount = await foodCollection.find(query).toArray();
+      res.send({ foodUserAdd, count: addedFoodsCount.length });
     });
 
     // post data
