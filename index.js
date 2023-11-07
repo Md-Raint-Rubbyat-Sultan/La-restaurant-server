@@ -20,7 +20,7 @@ app.use(cookieParser());
 
 // custom middlewares
 const verifyToken = async (req, res, next) => {
-  const token = req.cookies.token;
+  const token = req.cookies?.token;
   if (!token) {
     return res.status(401).send({ message: "unauthorized access" });
   }
@@ -59,7 +59,7 @@ const run = async () => {
     app.post("/api/v1/jwt", async (req, res) => {
       const user = req.body;
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "1h",
+        expiresIn: "10s",
       });
       res
         .cookie("token", token, {
@@ -98,15 +98,15 @@ const run = async () => {
       res.send(popularFoods.slice(0, 6));
     });
 
-    app.get("/api/v1/single-food/:id", async (req, res) => {
+    app.get("/api/v1/single-food/:id", verifyToken, async (req, res) => {
       // verify token apply
-      const id = req.params.id;
+      const id = req.params?.id;
       const query = { _id: new ObjectId(id) };
       const singleFood = await foodCollection.findOne(query);
       res.send(singleFood);
     });
 
-    app.get("/api/v1/user/added-foods", async (req, res) => {
+    app.get("/api/v1/user/added-foods", verifyToken, async (req, res) => {
       // verify token apply
       const page = parseInt(req.query?.page) || 0;
       const size = parseInt(req.query?.size) || 9;
