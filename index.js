@@ -59,7 +59,7 @@ const run = async () => {
     app.post("/api/v1/jwt", async (req, res) => {
       const user = req.body;
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "10s",
+        expiresIn: "1h",
       });
       res
         .cookie("token", token, {
@@ -108,6 +108,11 @@ const run = async () => {
 
     app.get("/api/v1/user/added-foods", verifyToken, async (req, res) => {
       // verify token apply
+      const tokenInfo = req.user?.email;
+      if (tokenInfo !== req.query?.email) {
+        return res.status(403).send({ message: "forbidden access" });
+      }
+
       const page = parseInt(req.query?.page) || 0;
       const size = parseInt(req.query?.size) || 9;
       const Email = req.query.email;
