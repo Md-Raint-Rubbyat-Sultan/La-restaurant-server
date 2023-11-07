@@ -144,6 +144,22 @@ const run = async () => {
       const orderedFood = await cartCollection.insertOne(order);
       res.send(orderedFood);
     });
+
+    // update data
+    app.patch("/api/v1/update-all-food/:id", async (req, res) => {
+      const id = req.params?.id;
+      const doc = req.body;
+      const query = { _id: new ObjectId(id) };
+      const update = {
+        $set: {
+          quantity: doc.quantity,
+          orderCount: doc.orderCount,
+        },
+      };
+      const result = await foodCollection.updateOne(query, update);
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
