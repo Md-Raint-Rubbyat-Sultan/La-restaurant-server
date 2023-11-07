@@ -126,6 +126,20 @@ const run = async () => {
       res.send({ foodUserAdd, count: addedFoodsCount.length });
     });
 
+    app.get("/api/v1/cart", async (req, res) => {
+      const userEmail = req.query?.email;
+      const allOrderInCart = await cartCollection.find().toArray();
+      const orderUserMake = allOrderInCart.filter(
+        (order) => order?.email === userEmail && order?._id
+      );
+      const orderIds = orderUserMake.map(
+        (order) => new ObjectId(order?.orderId)
+      );
+      const query = { _id: { $in: orderIds } };
+      const orders = await foodCollection.find(query).toArray();
+      res.send(orders);
+    });
+
     // post data
     app.post("/api/v1/add-a-food", async (req, res) => {
       const foodInfo = req.body;
