@@ -126,11 +126,17 @@ const run = async () => {
       res.send({ foodUserAdd, count: addedFoodsCount.length });
     });
 
-    app.get("/api/v1/cart", async (req, res) => {
+    app.get("/api/v1/cart", verifyToken, async (req, res) => {
+      // verify token apply
+      const token = req.user.email;
+      if (token !== req.query?.email) {
+        return res.status(403).send({ message: "Forbidden access" });
+      }
+
       const userEmail = req.query?.email;
       const allOrderInCart = await cartCollection.find().toArray();
       const orderUserMake = allOrderInCart.filter(
-        (order) => order?.email === userEmail && order?._id
+        (order) => order?.email === userEmail
       );
       const orderIds = orderUserMake.map(
         (order) => new ObjectId(order?.orderId)
