@@ -182,6 +182,27 @@ const run = async () => {
       res.send(result);
     });
 
+    app.put("/api/v1/user/update-added-food/:id", async (req, res) => {
+      const id = req.params?.id;
+      const { name, category, origin, price, quantity, photo, description } =
+        req.body;
+      const query = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updates = {
+        $set: {
+          name: name,
+          category: category,
+          origin: origin,
+          price: price,
+          quantity: quantity,
+          img: photo,
+          description: description,
+        },
+      };
+      const result = await foodCollection.updateOne(query, updates, options);
+      res.send(result);
+    });
+
     // delete data
     app.delete("/api/v1/user/delete-a-added-food/:id", async (req, res) => {
       const id = req.params?.id;
