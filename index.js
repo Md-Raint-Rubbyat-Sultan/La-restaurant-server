@@ -141,9 +141,11 @@ const run = async () => {
       const orderIds = orderUserMake.map(
         (order) => new ObjectId(order?.orderId)
       );
+      const orderQuantity = orderUserMake.map((order) => order?.addedQuantity);
+      const orderDate = orderUserMake.map((order) => order?.addedTime);
       const query = { _id: { $in: orderIds } };
       const orders = await foodCollection.find(query).toArray();
-      res.send(orders);
+      res.send({ orders, extra: { quantity: orderQuantity, date: orderDate } });
     });
 
     // post data
