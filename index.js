@@ -182,6 +182,23 @@ const run = async () => {
       res.send(result);
     });
 
+    // delete data
+    app.delete("/api/v1/user/delete-a-added-food/:id", async (req, res) => {
+      const id = req.params?.id;
+      const query = { _id: new ObjectId(id) };
+      const cartQuery = { orderId: id };
+      const result = await foodCollection.deleteOne(query);
+      const cartResult = await cartCollection.deleteOne(cartQuery);
+      res.send({ result, cartResult });
+    });
+
+    app.delete("/api/v1/user/delete-a-cart-food/:id", async (req, res) => {
+      const id = req.params?.id;
+      const query = { orderId: id };
+      const result = await cartCollection.deleteOne(query);
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
