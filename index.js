@@ -11,7 +11,7 @@ const port = process.env.PORT || 5000;
 // middlewares
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: ["https://restaurant-app-6cba8.web.app"],
     credentials: true,
   })
 );
@@ -47,9 +47,7 @@ const client = new MongoClient(uri, {
 
 const run = async () => {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
-
+    // db and collections
     const db = client.db("restaurantDb");
     const foodCollection = db.collection("allFoods");
     const userCollection = db.collection("allUsers");
@@ -64,8 +62,8 @@ const run = async () => {
       res
         .cookie("token", token, {
           httpOnly: true,
-          secure: false,
-          // sameSite have to apply
+          secure: true,
+          sameSite: "none",
         })
         .send({ success: true });
     });
@@ -219,12 +217,6 @@ const run = async () => {
       const result = await cartCollection.deleteOne(query);
       res.send(result);
     });
-
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
   } finally {
   }
 };
