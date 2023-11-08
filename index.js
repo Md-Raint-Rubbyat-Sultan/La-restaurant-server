@@ -11,7 +11,7 @@ const port = process.env.PORT || 5000;
 // middlewares
 app.use(
   cors({
-    origin: ["https://restaurant-app-6cba8.web.app"],
+    origin: ["https://restaurant-app-6cba8.web.app", "http://localhost:5173"],
     credentials: true,
   })
 );
@@ -62,30 +62,51 @@ const run = async () => {
       res
         .cookie("token", token, {
           httpOnly: true,
-          secure: true,
-          sameSite: "none",
+          secure: false,
+          // secure: true,
+          // sameSite: "none",
         })
         .send({ success: true });
     });
 
     app.post("/api/v1/logout", async (req, res) => {
       res
-        .clearCookie("token", { maxAge: 0, sameSite: "none", secure: true })
+        .clearCookie("token", {
+          maxAge: 0,
+          // sameSite: "none",
+          //secure: true
+        })
         .send({ success: true });
     });
 
     // get data
     app.get("/api/v1/all-foods", async (req, res) => {
+      const search = req.query?.search || "";
       const page = parseInt(req.query?.page) || 0;
       const size = parseInt(req.query?.size) || 9;
-      const query = {};
+
+      let query = {};
+      let foodsCount = 0;
+
+      if (!search) {
+        query = {};
+      } else {
+        query = { name: search };
+      }
+
       const cursor = foodCollection.find(query);
 
       const allFoods = await cursor
         .skip(page * size)
         .limit(size)
         .toArray();
-      const foodsCount = await foodCollection.estimatedDocumentCount();
+
+      if (!search) {
+        foodsCount = await foodCollection.estimatedDocumentCount();
+      } else {
+        foodsCount = allFoods.length;
+      }
+
       res.send({ allFoods, count: foodsCount });
     });
 
