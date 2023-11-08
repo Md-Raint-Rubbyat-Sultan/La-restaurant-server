@@ -69,7 +69,9 @@ const run = async () => {
     });
 
     app.post("/api/v1/logout", async (req, res) => {
-      res.clearCookie("token", { maxAge: 0 }).send({ success: true });
+      res
+        .clearCookie("token", { maxAge: 0, sameSite: "none", secure: true })
+        .send({ success: true });
     });
 
     // get data
