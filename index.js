@@ -62,7 +62,6 @@ const run = async () => {
       res
         .cookie("token", token, {
           httpOnly: true,
-          secure: false,
           secure: true,
           sameSite: "none",
         })
@@ -73,8 +72,8 @@ const run = async () => {
       res
         .clearCookie("token", {
           maxAge: 0,
-          sameSite: "none",
           secure: true,
+          sameSite: "none",
         })
         .send({ success: true });
     });
