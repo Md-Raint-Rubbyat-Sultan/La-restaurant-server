@@ -222,7 +222,7 @@ const run = async () => {
 };
 run().catch(console.dir);
 
-app.get("/api/v1", (req, res) => {
+app.get("/", (req, res) => {
   res.send("restaurant server is running");
 });
 
