@@ -11,7 +11,7 @@ const port = process.env.PORT || 5000;
 // middlewares
 app.use(
   cors({
-    origin: ["https://restaurant-app-6cba8.web.app", "http://localhost:5173"],
+    origin: ["https://restaurant-app-6cba8.web.app"],
     credentials: true,
   })
 );
@@ -63,8 +63,8 @@ const run = async () => {
         .cookie("token", token, {
           httpOnly: true,
           secure: false,
-          // secure: true,
-          // sameSite: "none",
+          secure: true,
+          sameSite: "none",
         })
         .send({ success: true });
     });
@@ -73,8 +73,8 @@ const run = async () => {
       res
         .clearCookie("token", {
           maxAge: 0,
-          // sameSite: "none",
-          //secure: true
+          sameSite: "none",
+          secure: true,
         })
         .send({ success: true });
     });
