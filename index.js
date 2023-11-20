@@ -90,7 +90,7 @@ const run = async () => {
       if (!search) {
         query = {};
       } else {
-        query = { name: search };
+        query = { name: { $regex: search, $options: "i" } };
       }
 
       const cursor = foodCollection.find(query);
@@ -235,7 +235,7 @@ const run = async () => {
 
     app.delete("/api/v1/user/delete-a-cart-food/:id", async (req, res) => {
       const id = req.params?.id;
-      const query = { orderId: id };
+      const query = { orderId: new ObjectId(id) };
       const result = await cartCollection.deleteOne(query);
       res.send(result);
     });
