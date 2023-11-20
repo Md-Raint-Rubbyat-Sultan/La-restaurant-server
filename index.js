@@ -154,18 +154,10 @@ const run = async () => {
       }
 
       const userEmail = req.query?.email;
-      const allOrderInCart = await cartCollection.find().toArray();
-      const orderUserMake = allOrderInCart.filter(
-        (order) => order?.email === userEmail
-      );
-      const orderIds = orderUserMake.map(
-        (order) => new ObjectId(order?.orderId)
-      );
-      const orderQuantity = orderUserMake.map((order) => order?.addedQuantity);
-      const orderDate = orderUserMake.map((order) => order?.addedTime);
-      const query = { _id: { $in: orderIds } };
-      const orders = await foodCollection.find(query).toArray();
-      res.send({ orders, extra: { quantity: orderQuantity, date: orderDate } });
+      const allOrderInCart = await cartCollection
+        .find({ email: userEmail })
+        .toArray();
+      res.send({ orders: allOrderInCart });
     });
 
     // post data
@@ -177,6 +169,16 @@ const run = async () => {
 
     app.post("/api/v1/add-a-user", async (req, res) => {
       const userInfo = req.body;
+      const allUser = await userCollection.find({}).toArray();
+
+      const isUserExist = allUser.find(
+        (user) => user?.userEmail === userInfo?.userEmail
+      );
+
+      if (isUserExist) {
+        return res.send({ isUserExist, acknowledged: true });
+      }
+
       const addUser = await userCollection.insertOne(userInfo);
       res.send(addUser);
     });
@@ -236,7 +238,7 @@ const run = async () => {
     app.delete("/api/v1/user/delete-a-cart-food/:id", async (req, res) => {
       const id = req.params?.id;
       // const email = req.query?.email;
-      const query = { orderId: id };
+      const query = { _id: new ObjectId(id) };
       const result = await cartCollection.deleteOne(query);
       res.send(result);
     });
