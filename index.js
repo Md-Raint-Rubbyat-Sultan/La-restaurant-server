@@ -235,7 +235,8 @@ const run = async () => {
 
     app.delete("/api/v1/user/delete-a-cart-food/:id", async (req, res) => {
       const id = req.params?.id;
-      const query = { orderId: new ObjectId(id) };
+      // const email = req.query?.email;
+      const query = { orderId: id };
       const result = await cartCollection.deleteOne(query);
       res.send(result);
     });
