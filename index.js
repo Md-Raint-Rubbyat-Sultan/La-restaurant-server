@@ -1,9 +1,9 @@
 const express = require("express");
 const cors = require("cors");
+require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
-require("dotenv").config();
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -11,7 +11,7 @@ const port = process.env.PORT || 5000;
 // middlewares
 app.use(
   cors({
-    origin: ["https://restaurant-app-6cba8.web.app"],
+    origin: [process.env.LIVE_SITE],
     credentials: true,
   })
 );
@@ -83,9 +83,19 @@ const run = async () => {
       const search = req.query?.search || "";
       const page = parseInt(req.query?.page) || 0;
       const size = parseInt(req.query?.size) || 9;
+      const filter = req.query?.filter;
 
       let query = {};
       let foodsCount = 0;
+      let options = {};
+
+      if (filter && filter !== "default") {
+        options = {
+          sort: {
+            price: filter === "acc" ? 1 : -1,
+          },
+        };
+      }
 
       if (!search) {
         query = {};
@@ -93,20 +103,25 @@ const run = async () => {
         query = { name: { $regex: search, $options: "i" } };
       }
 
-      const cursor = foodCollection.find(query);
+      const cursor = foodCollection.find(query, options);
 
-      const allFoods = await cursor
-        .skip(page * size)
-        .limit(size)
-        .toArray();
+      try {
+        const allFoods = await cursor
+          .skip(page * size)
+          .limit(size)
+          .toArray();
 
-      if (!search) {
-        foodsCount = await foodCollection.estimatedDocumentCount();
-      } else {
-        foodsCount = allFoods.length;
+        if (!search) {
+          foodsCount = await foodCollection.estimatedDocumentCount();
+        } else {
+          foodsCount = allFoods.length;
+        }
+
+        res.send({ allFoods, count: foodsCount });
+      } catch (err) {
+        console.log(err);
+        res.status(500).send(err);
       }
-
-      res.send({ allFoods, count: foodsCount });
     });
 
     app.get("/api/v1/popular-foods", async (req, res) => {
